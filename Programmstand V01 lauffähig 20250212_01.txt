@@ -1,0 +1,299 @@
+AndroidManifest:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.wb.rolladenaufab">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.RolladenAufAb"
+        tools:targetApi="31">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.RolladenAufAb">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <receiver android:name=".UpdateReceiver" />
+    </application>
+
+</manifest>
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+
+
+MainActivity:
+package com.wb.rolladenaufab;
+
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class MainActivity extends AppCompatActivity {
+
+    private TextView sunriseTextView;
+    private TextView sunsetTextView;
+    private Button sunriseAlarmButton;
+    private Button sunsetAlarmButton;
+    private ExecutorService executorService;
+    private Handler handler;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        sunriseTextView = findViewById(R.id.sunriseTextView);
+        sunsetTextView = findViewById(R.id.sunsetTextView);
+        sunriseAlarmButton = findViewById(R.id.sunriseAlarmButton);
+        sunsetAlarmButton = findViewById(R.id.sunsetAlarmButton);
+
+        executorService = Executors.newSingleThreadExecutor();
+        handler = new Handler(Looper.getMainLooper());
+
+        scheduleDailyUpdate();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchSunriseSunset();
+    }
+
+    private void fetchSunriseSunset() {
+        executorService.execute(() -> {
+            try {
+                HttpURLConnection connection = openConnection("https://api.open-meteo.com/v1/forecast?latitude=52.030083&longitude=7.106341&hourly=temperature_2m&daily=sunrise,sunset&timezone=Europe%2FBerlin&forecast_days=1");
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder result = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+                reader.close();
+
+                JSONObject jsonObject = new JSONObject(result.toString());
+                JSONObject daily = jsonObject.getJSONObject("daily");
+                JSONArray sunriseArray = daily.getJSONArray("sunrise");
+                JSONArray sunsetArray = daily.getJSONArray("sunset");
+
+                String sunrise = sunriseArray.getString(0).replace("T", " T ");
+                String sunset = sunsetArray.getString(0).replace("T", " T ");
+
+                handler.post(() -> {
+                    sunriseTextView.setText("Sunrise: " + sunrise);
+                    sunsetTextView.setText("Sunset: " + sunset);
+                    checkAlarmTimes(sunrise, sunset);
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private HttpURLConnection openConnection(String urlString) throws Exception {
+        URL url = new URL(urlString);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        return connection;
+    }
+/*
+    private String formatDateTime(String dateTime) {
+        try {
+            SimpleDateFormat originalFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault());
+            SimpleDateFormat displayFormat = new SimpleDateFormat("yyyy-MM-dd 'T' HH:mm:ssXXX", Locale.getDefault());
+            Date date = originalFormat.parse(dateTime);
+            return displayFormat.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return dateTime;
+        }
+    }
+*/
+    private void checkAlarmTimes(String sunrise, String sunset) {
+        SimpleDateFormat originalFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault());
+        try {
+            Date sunriseDate = originalFormat.parse(sunrise);
+            Date sunsetDate = originalFormat.parse(sunset);
+            Date currentDate = new Date();
+
+            if (currentDate.after(sunriseDate)) {
+                sunriseAlarmButton.setBackgroundColor(Color.RED);
+            }
+
+            if (currentDate.after(sunsetDate)) {
+                sunsetAlarmButton.setBackgroundColor(Color.RED);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onSunriseAlarmClick(View view) {
+        toggleButtonColor(sunriseAlarmButton);
+    }
+
+    public void onSunsetAlarmClick(View view) {
+        toggleButtonColor(sunsetAlarmButton);
+    }
+
+    private void toggleButtonColor(Button button) {
+        Drawable background = button.getBackground();
+        if (background instanceof ColorDrawable) {
+            int currentColor = ((ColorDrawable) background).getColor();
+            if (currentColor == Color.RED) {
+                button.setBackgroundColor(Color.GREEN);
+            } else {
+                button.setBackgroundColor(Color.RED);
+            }
+        }
+    }
+
+    private void scheduleDailyUpdate() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, UpdateReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 1);
+
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY, pendingIntent);
+    }
+}
+
+-----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+activity_main:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".MainActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        tools:context=".MainActivity">
+
+        <TextView
+            android:id="@+id/sunriseTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sunrise: "
+            android:textSize="24sp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="100dp"/>
+
+        <TextView
+            android:id="@+id/sunsetTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sunset: "
+            android:textSize="24sp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/sunriseTextView"
+            android:layout_marginTop="20dp"/>
+
+        <Button
+            android:id="@+id/sunriseAlarmButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sunrise-Alarm"
+            android:backgroundTint="@android:color/holo_green_light"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/sunsetTextView"
+            android:layout_marginTop="20dp"
+            android:onClick="onSunriseAlarmClick"/>
+
+        <Button
+            android:id="@+id/sunsetAlarmButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sunset-Alarm"
+            android:backgroundTint="@android:color/holo_green_light"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/sunriseAlarmButton"
+            android:layout_marginTop="20dp"
+            android:onClick="onSunsetAlarmClick"/>
+    </RelativeLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+------------------------------------------------------------------
+------------------------------------------------------------------
+UpdateReceiver:
+package com.wb.rolladenaufab;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+
+public class UpdateReceiver extends BroadcastReceiver {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Intent updateIntent = new Intent(context, MainActivity.class);
+        updateIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(updateIntent);
+    }
+}
