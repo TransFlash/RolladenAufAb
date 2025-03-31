@@ -2,4 +2,13 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="actionbar_farbe">#2196F3</color>
+    <color name="toolbar_farbe">#2196F3</color>
+    <color name="toolbar_blue">#FF5722</color>
+    <color name="customPrimaryDarkColor">#E64A19</color>
+    <color name="customAccentColor">#FFC107</color>
+
+    <color name="toolbar_color">#2196F3</color> <!-- Ihre gewünschte Farbe für die Toolbar -->
+    <color name="toolbar_text_color">#FFFFFF</color> <!-- Farbe für den Text in der Toolbar -->
+
 </resources>

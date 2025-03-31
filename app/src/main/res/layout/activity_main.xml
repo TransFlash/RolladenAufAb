@@ -22,49 +22,38 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"
-        tools:context=".MainActivity">
+        android:layout_below="@id/toolbar">
 
         <TextView
             android:id="@+id/sunriseTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sunrise: "
-            android:textSize="24sp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="100dp"/>
+            android:layout_marginTop="100dp"
+            android:text="Sunrise: "
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/sunsetTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sunset: "
-            android:textSize="24sp"
-            android:layout_centerHorizontal="true"
             android:layout_below="@id/sunriseTextView"
-            android:layout_marginTop="20dp"/>
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:text="Sunset: "
+            android:textSize="24sp" />
 
-        <Button
-            android:id="@+id/sunriseAlarmButton"
+        <TextView
+            android:id="@+id/creditTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sunrise-Alarm"
-            android:backgroundTint="@android:color/holo_green_light"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@id/sunsetTextView"
-            android:layout_marginTop="20dp"
-            android:onClick="onSunriseAlarmClick"/>
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="1dp"
+            android:layout_marginBottom="1dp"
+            android:text="@string/designedby" />
 
-        <Button
-            android:id="@+id/sunsetAlarmButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sunset-Alarm"
-            android:backgroundTint="@android:color/holo_green_light"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@id/sunriseAlarmButton"
-            android:layout_marginTop="20dp"
-            android:onClick="onSunsetAlarmClick"/>
     </RelativeLayout>
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

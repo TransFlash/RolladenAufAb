@@ -25,6 +25,61 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".SettingInfoActivity"
+            android:exported="false"
+            android:label="@string/einstellungen_info">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".SettingWohnzLinksActivity"
+            android:exported="false"
+            android:label="@string/wohnzimmer_links">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".SettingWohnzRechtsActivity"
+            android:exported="false"
+            android:label="@string/wohnzimmer_rechts">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".SettingSchlafzLinksActivity"
+            android:exported="false"
+            android:label="@string/schlafzimmer_links">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".SettingSchlafzRechtsActivity"
+            android:exported="false"
+            android:label="@string/schlafzimmer_rechts">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".SettingBadezActivity"
+            android:exported="false"
+            android:label="@string/badezimmer">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
         <receiver android:name=".UpdateReceiver" />
     </application>
 

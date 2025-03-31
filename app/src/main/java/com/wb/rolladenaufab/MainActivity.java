@@ -1,22 +1,23 @@
 package com.wb.rolladenaufab;
 
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -35,10 +36,12 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String PREFS_NAME = "rollladen_settings";
+    private static final String SUNRISE_TIME_KEY = "sunrise_time";
+    private static final String SUNSET_TIME_KEY = "sunset_time";
+
     private TextView sunriseTextView;
     private TextView sunsetTextView;
-    private Button sunriseAlarmButton;
-    private Button sunsetAlarmButton;
     private ExecutorService executorService;
     private Handler handler;
 
@@ -47,16 +50,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Bildschirm-Ausrichtung auf Hochformat festlegen
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setBackgroundColor(getResources().getColor(R.color.toolbar_color)); // Setzen Sie die Hintergrundfarbe der Toolbar
+
         sunriseTextView = findViewById(R.id.sunriseTextView);
         sunsetTextView = findViewById(R.id.sunsetTextView);
-        sunriseAlarmButton = findViewById(R.id.sunriseAlarmButton);
-        sunsetAlarmButton = findViewById(R.id.sunsetAlarmButton);
 
         executorService = Executors.newSingleThreadExecutor();
         handler = new Handler(Looper.getMainLooper());
 
+        // Laden der gespeicherten Zeiten
+        loadSunriseSunsetTimes();
+
+        // Aktualisieren der Sonnenaufgangs- und Sonnenuntergangszeiten beim Start
+        SunTimesUpdateService sunTimesUpdateService = new SunTimesUpdateService(this);
+        sunTimesUpdateService.updateSunTimes();
+
+        // Planen der täglichen Aktualisierung um Mitternacht
         scheduleDailyUpdate();
-    }
+    } // ENDE onCreate
 
     @Override
     protected void onResume() {
@@ -67,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private void fetchSunriseSunset() {
         executorService.execute(() -> {
             try {
-                HttpURLConnection connection = openConnection("https://api.open-meteo.com/v1/forecast?latitude=52.030083&longitude=7.106341&hourly=temperature_2m&daily=sunrise,sunset&timezone=Europe%2FBerlin&forecast_days=1");
+                HttpURLConnection connection = openConnection("https://api.open-meteo.com/v1/forecast?latitude=52.030083&longitude=7.106341&hourly=temperature_2m&daily=sunrise,sunset&timezone=Europe/Berlin");
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 StringBuilder result = new StringBuilder();
@@ -89,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
                     sunriseTextView.setText("Sunrise: " + sunrise);
                     sunsetTextView.setText("Sunset: " + sunset);
                     checkAlarmTimes(sunrise, sunset);
+
+                    // Speichern der Zeiten in SharedPreferences
+                    saveSunriseSunsetTimes(sunrise, sunset);
                 });
 
             } catch (Exception e) {
@@ -112,15 +131,8 @@ public class MainActivity extends AppCompatActivity {
             Date sunriseDate = originalFormat.parse(sunrise);
             Date sunsetDate = originalFormat.parse(sunset);
 
-            // Feste Testzeit setzen (Zeitzone explizit setzen)
+            // Aktuelle Zeit setzen
             Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
-            calendar.set(Calendar.YEAR, 2025);
-            calendar.set(Calendar.MONTH, Calendar.FEBRUARY);
-            calendar.set(Calendar.DAY_OF_MONTH, 13);
-            calendar.set(Calendar.HOUR_OF_DAY, 16);
-            calendar.set(Calendar.MINUTE, 55);
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
             Date currentDate = calendar.getTime();
 
             Log.d("CheckAlarmTimes", "Current Date: " + currentDate + " TimeZone: " + calendar.getTimeZone().getID());
@@ -128,17 +140,30 @@ public class MainActivity extends AppCompatActivity {
             Log.d("CheckAlarmTimes", "Sunset Date: " + sunsetDate);
 
             if (currentDate.after(sunriseDate)) {
-                Log.d("CheckAlarmTimes", "Current Date ist nach Sunrise -> Button wird rot");
-                sunriseAlarmButton.setBackgroundColor(Color.RED);
+                Log.d("CheckAlarmTimes", "Current Date ist nach Sunrise -> sunriseTextView wird rot");
+                sunriseTextView.setTextColor(Color.RED);
             } else {
-                Log.d("CheckAlarmTimes", "Current Date ist vor Sunrise -> Button bleibt unverändert");
+                Log.d("CheckAlarmTimes", "Current Date ist vor Sunrise -> sunriseTextView bleibt unverändert");
             }
 
             if (currentDate.after(sunsetDate)) {
-                Log.d("CheckAlarmTimes", "Current Date ist nach Sunset -> Button wird rot");
-                sunsetAlarmButton.setBackgroundColor(Color.RED);
+                Log.d("CheckAlarmTimes", "Current Date ist nach Sunset -> sunsetTextView wird rot");
+                sunsetTextView.setTextColor(Color.RED);
             } else {
-                Log.d("CheckAlarmTimes", "Current Date ist vor Sunset -> Button bleibt unverändert");
+                Log.d("CheckAlarmTimes", "Current Date ist vor Sunset -> sunsetTextView bleibt unverändert");
+            }
+
+            // Beide TextViews nach 00:00 wieder grau setzen
+            Calendar midnightCalendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
+            midnightCalendar.set(Calendar.HOUR_OF_DAY, 0);
+            midnightCalendar.set(Calendar.MINUTE, 0);
+            midnightCalendar.set(Calendar.SECOND, 0);
+            midnightCalendar.set(Calendar.MILLISECOND, 0);
+            Date midnight = midnightCalendar.getTime();
+
+            if (currentDate.after(midnight) && currentDate.before(sunriseDate)) {
+                sunriseTextView.setTextColor(Color.GRAY);
+                sunsetTextView.setTextColor(Color.GRAY);
             }
 
         } catch (Exception e) {
@@ -146,38 +171,94 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    public void onSunriseAlarmClick(View view) {
-        toggleButtonColor(sunriseAlarmButton);
-    }
-
-    public void onSunsetAlarmClick(View view) {
-        toggleButtonColor(sunsetAlarmButton);
-    }
-
-    private void toggleButtonColor(Button button) {
-        Drawable background = button.getBackground();
-        if (background instanceof ColorDrawable) {
-            int currentColor = ((ColorDrawable) background).getColor();
-            if (currentColor == Color.RED) {
-                button.setBackgroundColor(Color.GREEN);
-            } else {
-                button.setBackgroundColor(Color.RED);
-            }
-        }
-    }
-
     private void scheduleDailyUpdate() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, UpdateReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        //Intent intent = new Intent(this, UpdateReceiver.class);
+        //PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 1);
 
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY, pendingIntent);
+        //alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+        //AlarmManager.INTERVAL_DAY, pendingIntent);
+    } // ENDE scheduleDailyUpdate
+
+    // Speichern der Sunrise- und Sunset-Zeiten in SharedPreferences
+    private void saveSunriseSunsetTimes(String sunrise, String sunset) {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(SUNRISE_TIME_KEY, sunrise);
+        editor.putString(SUNSET_TIME_KEY, sunset);
+        Log.d("Sunrise Sunset speichern", "Sunrise und Sunset wurden gespeichert");
+        editor.apply();
     }
+
+    // Laden der Sunrise- und Sunset-Zeiten aus SharedPreferences
+    private void loadSunriseSunsetTimes() {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String sunrise = sharedPreferences.getString(SUNRISE_TIME_KEY, "N/A");
+        String sunset = sharedPreferences.getString(SUNSET_TIME_KEY, "N/A");
+
+        sunriseTextView.setText("Sunrise: " + sunrise);
+        sunsetTextView.setText("Sunset: " + sunset);
+    }
+
+    // Menüoptionen in der Toolbar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
+    } // ENDE onCreateOptionsMenu
+
+    // Optionen im Menü
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_back || id == android.R.id.home) {
+            // Hier kannst du die Aktion für den Zurück-Pfeil behandeln
+            onBackPressed(); // Beispiel: Gehe zur vorherigen Aktivität
+            return true;
+        }
+        if (id == R.id.info_settings) {
+            Intent intent = new Intent(this, SettingInfoActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        if (id == R.id.wohnzimmerlinks_settings) {
+            Intent intent = new Intent(this, SettingWohnzLinksActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        if (id == R.id.wohnzimmerrechts_settings) {
+            Intent intent = new Intent(this, SettingWohnzRechtsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        if (id == R.id.schlafzimmerlinks_settings) {
+            Intent intent = new Intent(this, SettingSchlafzLinksActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        if (id == R.id.schlafzimmerrechts_settings) {
+            Intent intent = new Intent(this, SettingSchlafzRechtsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        if (id == R.id.badezimmer_settings) {
+            Intent intent = new Intent(this, SettingBadezActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    } // ENDE onOptionsItemSelected
+
 }

@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:navigationIcon="@drawable/baseline_arrow_back_24"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:title="Rollladen Wohnzimmer links" />
+
+    <TextView
+        android:id="@+id/wohnzlinksTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginTop="8dp"
+        android:text="Rollladen Wohnzimmer Links:"
+        android:textColor="@android:color/black"
+        android:textSize="24sp" />
+
+    <!-- IP-Adresse Eingabefelder -->
+    <LinearLayout
+        android:id="@+id/ip_wohnzl_container"
+        android:layout_width="390dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/wohnzlinksTextView"
+        android:layout_marginTop="-5dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/ip_address_wohnzl_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/wohnzlinksTextView"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="8dp"
+            android:text="IP-Adresse:"
+            android:textSize="20sp" />
+
+
+        <EditText
+            android:id="@+id/ip_wohnzl_block_1"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:gravity="center_horizontal"
+            android:hint="xxx"
+            android:inputType="number"
+            android:maxLength="3"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="." />
+
+        <EditText
+            android:id="@+id/ip_wohnzl_block_2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:gravity="center_horizontal"
+            android:hint="xxx"
+            android:inputType="number"
+            android:maxLength="3"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="." />
+
+        <EditText
+            android:id="@+id/ip_wohnzl_block_3"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:gravity="center_horizontal"
+            android:hint="xxx"
+            android:inputType="number"
+            android:maxLength="3"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="." />
+
+        <EditText
+            android:id="@+id/ip_wohnzl_block_4"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:gravity="center_horizontal"
+            android:hint="xxx"
+            android:inputType="number"
+            android:maxLength="3"
+            android:textSize="20sp" />
+    </LinearLayout>
+    <!-- Ende IP-Adresse Eingabefelder -->
+
+    <!-- Check-Boxen Automatik-Aktiv Tage -->
+    <TextView
+        android:id="@+id/cb_days_wohnzl_label"
+        android:layout_width="117dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ip_wohnzl_container"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="278dp"
+        android:text="aktiv am:"
+        android:textColor="@android:color/black"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:id="@+id/cb_wohnzl_days_container"
+        android:layout_width="395dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ip_wohnzl_container"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <CheckBox
+            android:id="@+id/cb_wohnzl_Monday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mo" />
+
+        <CheckBox
+            android:id="@+id/cb_wohnzl_Tuesday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Di" />
+
+        <CheckBox
+            android:id="@+id/cb_wohnzl_Wednesday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mi" />
+
+        <CheckBox
+            android:id="@+id/cb_wohnzl_Thursday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Do" />
+
+        <CheckBox
+            android:id="@+id/cb_wohnzl_Friday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fr" />
+
+        <CheckBox
+            android:id="@+id/cb_wohnzl_Saturday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sa" />
+
+        <CheckBox
+            android:id="@+id/cb_wohnzl_Sunday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="So" />
+    </LinearLayout>
+    <!-- Check-Boxen Automatik-Aktiv Tage -->
+
+    <!-- PickerListe Montag bis Sonntag einfügen -->
+    <Spinner
+        android:id="@+id/wohnzl_weekday_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cb_wohnzl_days_container"
+        android:layout_marginTop="20dp"
+        android:entries="@array/weekday_array"
+        android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        android:spinnerMode="dropdown"
+        android:textSize="40sp" />
+    <!-- Ende PickerListe Montag bis Sonntag einfügen -->
+
+    <!-- CheckBox Sunrise -->
+    <CheckBox
+        android:id="@+id/cb_wohnzl_Sunrise"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:layout_below="@+id/wohnzl_weekday_spinner"
+        android:layout_marginTop="20dp"
+        android:text="Sunrise" />
+    <!-- ENDE CheckBox Sunrise -->
+
+    <!-- EditText für manuelle Offset-Eingabe Sunrise-->
+    <EditText
+        android:id="@+id/et_seekbar_sunrise_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cb_wohnzl_Sunrise"
+        android:layout_marginTop="-15dp"
+        android:layout_centerHorizontal="true"
+        android:inputType="numberSigned"
+        android:maxLength="4"
+        android:text="0"
+        android:textSize="20sp" />
+    <!-- ENDE EditText für manuelle Offset-Eingabe Sunrise -->
+
+
+    <!-- SeekBar Sunrise Offset -360min bis +360min-->
+    <!-- CheckBox Sunset -->
+    <SeekBar
+        android:id="@+id/seekBar_sunrise"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/et_seekbar_sunrise_value"
+        android:layout_marginTop="0dp"
+        android:max="720"
+        android:progress="360"
+        android:thumb="@drawable/thumb_sunrise" />
+
+    <CheckBox
+        android:id="@+id/cb_wohnzl_Sunset"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:layout_below="@+id/seekBar_sunrise"
+        android:text="Sunset" />
+    <!-- ENDE CheckBox Sunset -->
+
+    <!-- EditText für manuelle Offset-Eingabe Sunset-->
+    <EditText
+        android:id="@+id/et_seekbar_sunset_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cb_wohnzl_Sunset"
+        android:layout_marginTop="-15dp"
+        android:layout_centerHorizontal="true"
+        android:inputType="numberSigned"
+        android:maxLength="4"
+        android:text="0"
+        android:textSize="20sp" />
+    <!-- ENDE EditText für manuelle Offset-Eingabe Sunset -->
+
+    <!-- SeekBar Sunset Offset -360min bis +360min-->
+    <SeekBar
+        android:id="@+id/seekBar_sunset"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:thumb="@drawable/thumb_sunset"
+        android:layout_below="@+id/et_seekbar_sunset_value"
+        android:layout_marginTop="0dp"
+        android:max="720"
+        android:progress="360" />
+    <!-- ENDE SeekBar Sunset Offset -360min bis +360min-->
+
+    <!-- Montag Ein- und Ausschaltzeiten -->
+    <LinearLayout
+        android:id="@+id/wohnzl_Schaltzeit"
+        android:layout_width="343dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/seekBar_sunset"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="0dp"
+            android:text="Ein:"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/et_onHour"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:hint="HH"
+            android:inputType="number"
+            android:maxLength="2" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":" />
+
+        <EditText
+            android:id="@+id/et_onMinute"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:hint="MM"
+            android:inputType="number"
+            android:maxLength="2" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":" />
+
+        <EditText
+            android:id="@+id/et_onSecond"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:hint="SS"
+            android:inputType="number"
+            android:maxLength="2" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" Aus:"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/et_offHour"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:hint="HH"
+            android:inputType="number"
+            android:maxLength="2" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":" />
+
+        <EditText
+            android:id="@+id/et_offMinute"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:hint="MM"
+            android:inputType="number"
+            android:maxLength="2" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":" />
+
+        <EditText
+            android:id="@+id/et_offSecond"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:hint="SS"
+            android:inputType="number"
+            android:maxLength="2" />
+    </LinearLayout>
+    <!-- ENDE Montag Ein- und Ausschaltzeiten -->
+
+
+    <!-- Button alle Daten vom aktiven Tag speichern -->
+    <Button
+        android:id="@+id/save_wohnzlinks_button"
+        android:layout_width="175dp"
+        android:layout_height="61dp"
+        android:layout_below="@+id/wohnzl_Schaltzeit"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="135dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="117dp"
+        android:layout_marginBottom="10dp"
+        android:text="speichern"
+        android:textColor="@android:color/white" />
+    <!-- ENDE Button alle Daten vom aktiven Tag speichern -->
+
+    <!-- Programmierer! -->
+    <TextView
+        android:id="@+id/creditTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="1dp"
+        android:text="@string/designedby" />
+    <!-- ENDE -->
+</RelativeLayout>

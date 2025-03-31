@@ -1,8 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.RolladenAufAb" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Customize your theme here. -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/toolbar_color</item>
+        <item name="colorPrimaryDark">@color/customPrimaryDarkColor</item>
+        <item name="colorAccent">@color/customAccentColor</item>
+        <item name="colorOnPrimary">@color/toolbar_text_color</item>
     </style>
 
     <style name="Theme.RolladenAufAb" parent="Base.Theme.RolladenAufAb" />
